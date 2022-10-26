@@ -68,6 +68,17 @@ object WallService {
         posts += post
     }
 
+    fun update ( postFind: Post): Boolean {
+        for ((index, post) in posts.withIndex()) {
+            if (post.id == postFind.id) {
+                posts[index] = postFind.copy(id = post.id, date = post.date)
+                return true
+            }
+        }
+        return false
+    }
+
+
     fun like(postId: Int): Boolean {
         for ((index, post) in posts.withIndex()) {
             if (post.id == postId) {
@@ -77,6 +88,7 @@ object WallService {
         }
         return false
     }
+
 
     fun print() {
         for (post in posts) {
@@ -108,6 +120,7 @@ fun main() {
     println((post.attachments[0] as AudioAtachment).audio)
 
     WallService.add(post)
+    WallService.update(post)
     WallService.add(
         Post(
             2,
@@ -193,6 +206,6 @@ fun main() {
 
 
     WallService.print()
-    WallService.like(1)
+    WallService.like(2)
     WallService.print()
 }
