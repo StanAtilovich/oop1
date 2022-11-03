@@ -1,17 +1,21 @@
+import org.jetbrains.annotations.Nullable
+
 data class Post(
+    @Nullable
     val id: Int,
     val contentL: String,
     val likes: Int = 0,
     val attachments: Array<Attachment> = emptyArray(),
-    val ownerId: Int,
+    val ownerId: Int? = 0,
     val date: Long,
-    val views: Int
+    val views: Int?= 0
 
 ) {
     fun printContent() {
         println("Post with$id printted it content:$contentL")
     }
 }
+
 
 
 data class Audio(
@@ -25,10 +29,10 @@ data class Video(
 )
 
 data class Donut(
-    val isDonut: Boolean,
-    val paidDuration: Int,
-    val placeholder: String,
-    val canPublishFreeCopy: Boolean,
+    val isDonut: Boolean= false,
+    val paidDuration: Int=0,
+    val placeholder: String="",
+    val canPublishFreeCopy: Boolean=false,
     val editMode: String
 )
 
@@ -68,7 +72,7 @@ object WallService {
         posts += post
     }
 
-    fun update ( postFind: Post): Boolean {
+    fun update(postFind: Post): Boolean {
         for ((index, post) in posts.withIndex()) {
             if (post.id == postFind.id) {
                 posts[index] = postFind.copy(id = post.id, date = post.date)
@@ -108,7 +112,7 @@ fun main() {
         attachments = arrayOf(
             AudioAtachment(Audio(1, "song.mp3")),
             RepostsAtachment(23, false),
-            DonutAtachment(Donut(true, 455, "Салам", true, "all"))
+            DonutAtachment(Donut(true, 455, "Салам", true, "all")),
         ),
         likes = 99,
         ownerId = 455555,
