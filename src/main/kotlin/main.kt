@@ -1,4 +1,17 @@
 import org.jetbrains.annotations.Nullable
+import java.awt.event.WindowListener
+
+
+data class Comment(
+    @Nullable
+    val id: Int,
+    val postId: Int,
+    val date: Int,
+    val text: String,
+    val attachments: Array<Attachment>? = null
+)
+
+class PostNotFoundException(message: String) : RuntimeException(message)
 
 data class Post(
     @Nullable
@@ -8,14 +21,14 @@ data class Post(
     val attachments: Array<Attachment> = emptyArray(),
     val ownerId: Int? = 0,
     val date: Long,
-    val views: Int?= 0
+    val views: Int? = 0,
+    val comments: Int? = null
 
 ) {
     fun printContent() {
         println("Post with$id printted it content:$contentL")
     }
 }
-
 
 
 data class Audio(
@@ -29,10 +42,10 @@ data class Video(
 )
 
 data class Donut(
-    val isDonut: Boolean= false,
-    val paidDuration: Int=0,
-    val placeholder: String="",
-    val canPublishFreeCopy: Boolean=false,
+    val isDonut: Boolean = false,
+    val paidDuration: Int = 0,
+    val placeholder: String = "",
+    val canPublishFreeCopy: Boolean = false,
     val editMode: String
 )
 
@@ -68,6 +81,23 @@ data class RepostsAtachment(
 
 object WallService {
     private var posts = emptyArray<Post>()
+    private var comments = emptyArray<Comment>()
+
+    fun createComment(comment: Comment): Boolean {
+        var postFound = false
+        for (post in posts){
+            if (post.id == comment.postId){
+                postFound = true
+                comments += comment
+                println("коментарий добавлен ${comment.postId}(${comment.text})")
+            }
+        }
+        if (!postFound){
+            throw PostNotFoundException("добавление коментария невозможно не существует ${comment.postId}")
+        }
+        return true
+    }
+
     fun add(post: Post) {
         posts += post
     }
@@ -212,4 +242,12 @@ fun main() {
     WallService.print()
     WallService.like(2)
     WallService.print()
+
+    WallService.createComment(Comment(1,2,51122,"Salam",null))
+
+    try {
+        WallService.createComment(Comment(65,454,61122,"sass",null))
+        }catch (e: PostNotFoundException){
+            println(e.message)
+        }
 }
