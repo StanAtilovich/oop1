@@ -12,7 +12,9 @@ data class Comment(
 )
 
 class PostNotFoundException(message: String) : RuntimeException(message)
+class CommentNotFoundException(message: String) : RuntimeException(message)
 
+class ReasonNotFoundException(message: String) : RuntimeException(message)
 data class Post(
     @Nullable
     val id: Int,
@@ -30,7 +32,24 @@ data class Post(
     }
 }
 
-
+data class Complain(
+    val ownerId: Int,
+    val commentId: Int,
+    val reason : ReasonsComplain? = null
+)
+enum class ReasonsComplain(
+    val id: Int,
+    val text: String
+){
+    SPAM(0, "спам"),
+    CHLDPRN(1, "детская порнография"),
+    EXTREMISM(2, "экстремизм"),
+    VIOLENCE(3, "насилие"),
+    DRUGS(4, "пропаганда наркотиков"),
+    ADULT(5, "материал для взрослых"),
+    ABUSE(6, "оскорбление"),
+    SUICIDE(8, "призывы к суициду");
+}
 data class Audio(
     val id: Int,
     val name: String
@@ -82,7 +101,7 @@ data class RepostsAtachment(
 object WallService {
     private var posts = emptyArray<Post>()
     private var comments = emptyArray<Comment>()
-
+    private var complains = emptyArray<Complain>()
     fun createComment(comment: Comment): Boolean {
         var postFound = false
         for (post in posts){
@@ -131,7 +150,19 @@ object WallService {
         println()
     }
 
-
+    fun makeComplain(complain: Complain): Int {
+        var commentIdFound = false
+        for (comment in comments) {
+            if (comment.id == complain.commentId){
+                commentIdFound = true
+            }
+        }
+        if (complain.reason == null)throw  ReasonNotFoundException("невозможно подать жалобу укажи причину")
+        if (!commentIdFound)throw  CommentNotFoundException("невозможно подать жалобу (${complain.reason.text}, код причины: ${complain.reason.id}): Комменария с id ${complain.commentId} не существует!")
+        complains += complain
+        println("жалоба подана (Комменарий id: ${complain.commentId}. Причина: ${complain.reason.text}, код причины: ${complain.reason.id})")
+        return 1
+    }
 }
 
 
@@ -250,4 +281,18 @@ fun main() {
         }catch (e: PostNotFoundException){
             println(e.message)
         }
+    try {
+        WallService.makeComplain(Complain(0,5, ReasonsComplain.ABUSE))
+    }catch(e: CommentNotFoundException){
+        println(e.message)
+    }
+    WallService.makeComplain(Complain(1,1, ReasonsComplain.SPAM))
+    WallService.makeComplain(Complain(1,1, ReasonsComplain.DRUGS))
+    WallService.makeComplain(Complain(1,1, ReasonsComplain.SUICIDE))
+
+    try{
+        WallService.makeComplain(Complain(0,1))
+    }catch(e: ReasonNotFoundException){
+        println(e.message)
+    }
 }

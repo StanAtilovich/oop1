@@ -753,7 +753,7 @@ class Test {
     }
     @Test(expected = PostNotFoundException::class)
     fun shouldThrow() {
-        val comment2 = Comment(1, 2, 51122, "salam", null)
+        val comment2 = Comment(5555, 255, 51122, "salam", null)
         WallService.createComment(comment2)
     }
 
